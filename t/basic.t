@@ -30,9 +30,22 @@ dies-ok({
     $o.set-value(Int);
 }, 'violating constraints should throw an exception');
 
+try {
+    $o.set-value(Int);
+
+    CATCH {
+        when X::Phaser::PrePost {
+            pass 'X::Phaser::PrePost should be thrown when a POST violation occurs';
+        }
+
+        default {
+            fail 'X::Phaser::PrePost should be thrown when a POST violation occurs';
+        }
+    }
+}
+
 done;
 
-# returning False throws a X::Phaser::PrePost exception
 # all ancestor classes' invariants are checked
 # what about roles?
 # PREs are checked before, POSTs after
