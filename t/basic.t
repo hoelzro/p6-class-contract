@@ -20,6 +20,16 @@ class HasPostInvariant {
     }
 }
 
+class PostInvariantChild is HasPostInvariant {
+    method clear-value {
+        self.set-value(Int);
+    }
+
+    submethod POST {
+        self.value < 10
+    }
+}
+
 my $o = HasPostInvariant.new;
 
 lives-ok({
@@ -44,9 +54,34 @@ try {
     }
 }
 
+my $child = PostInvariantChild.new;
+
+lives-ok({
+    $child.set-value(5);
+});
+
+dies-ok({
+    $child.set-value(Int);
+});
+
+lives-ok({
+    $child.set-value(5);
+});
+
+dies-ok({
+    $child.set-value(11);
+});
+
+lives-ok({
+    $child.set-value(5);
+});
+
+dies-ok({
+    $child.clear-value;
+});
+
 done;
 
-# all ancestor classes' invariants are checked
 # what about roles?
 # PREs are checked before, POSTs after
 # private methods aren't checked
@@ -61,3 +96,5 @@ done;
 # BUILD, DESTROY?
 # ability to skip some methods (ex. if you know they don't modify anything?)
 # $o.value = Any; # XXX this won't trigger it, because we're returning the container!
+# a public calling another public should still check
+# what if a child class doesn't use Class::Contract;? does it still get the right metaclass?
